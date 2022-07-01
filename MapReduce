@@ -1,0 +1,200 @@
+Что решаем? Задачу "Top K".
+Найти, к примеру, 10 самых упоминаемых слов в википедии.
+
+Идея №1.
+text = open("moscow.txt")
+counts = dict()
+
+def count_words(text):
+    for line in text:
+        line = line.strip()
+        line = line.lower()
+
+        words = line.split()
+
+        for word in words:
+            if word.isalpha():
+                if word in counts:
+                    counts[word] = counts[word] + 1
+                else:
+                    counts[word] = 1
+
+count_words(text)
+
+sorted_dict = {}
+sorted_keys = sorted(counts, key=counts.get, reverse=True)
+
+for w in sorted_keys:
+    sorted_dict[w] = counts[w]
+
+print("words : ", len(counts))
+
+for word, count in sorted_dict.items():
+    print(word, " : ", count)
+
+
+Считать все слова в словарь с количеством упоминаний:
+dict[''арбуз"] += 1.
+Затем вывести 10 слов с наибольшими упоминаниями.
+
+Проблема:
+Ограниченное кол-во байт в оперативной памяти(ОП) для хранения такого мега словаря.
+
+Опустим тонкости использования оперативной памяти операционной системой и кодировки. Подсчитаем реальный пример. Допустим, есть 8 Гб ОП = 8589934592 байт. Слово "hello" занимает 5 байт. Это средняя длина слова в английском языке. Таких слов влезет 1,7 млрд = 1 717 986 918. Количество слов в англоязычной википедии 3,9 млрд. 
+
+Уже мега словарь не влезает единомоментно в ОП. Представим далее, что и ОП меньше, и слов на входе еще больше.
+
+. . Когда закончим чтение всего текста на выходе будут много файлов.
+
+
+
+Идея №2.
+Считываем слова в словарь с инкрементом кол-ва упоминаний пока есть память. Выгружаем словарь в новый файл когда память кончилась:
+
+import os
+
+filename = "moscow.txt"
+
+def count_words(filename):
+
+    text = open(filename)
+    counts = dict()
+
+    max_words_in_ram = 500
+    exceed_ram_times = 0
+
+    for line in text:
+        line = line.strip()
+        line = line.lower()
+
+        words = line.split()
+
+        for word in words:
+            if word.isalpha():
+
+                if word in counts:
+                    counts[word] = counts[word] + 1
+                else:
+                    counts[word] = 1
+                    if max_words_in_ram >= 0:
+                        max_words_in_ram = max_words_in_ram - 1
+                    else:
+                        exceed_ram_times = exceed_ram_times + 1
+                        max_words_in_ram = 500
+
+                        output_file = os.path.splitext(filename)[0] + "_out" + str(exceed_ram_times) + ".txt"
+                        with open(output_file, 'w') as f:
+                            for word, count in sorted(counts.items()): # , reverse=True
+                                f.write('%s : %s\n' % (word, count))
+
+                        counts.clear()
+
+
+count_words(filename)
+
+
+//================================
+
+import os
+
+filename = "moscow.txt"
+
+counts = dict()
+
+def count_words(filename):
+
+    text = open(filename)
+
+    for line in text:
+        line = line.strip()
+        line = line.lower()
+
+        words = line.split(":")
+        word = words[0]
+        count = int(words[1])
+
+        if word in counts:
+            counts[word] = counts[word] + count
+        else:
+            counts[word] = count
+
+# count_words(filename)
+
+import glob
+
+# absolute path to search all text files inside a specific folder
+path = r'moscow_out*'
+files = glob.glob(path)
+print(files)
+
+for filename in files:
+    count_words(filename)
+
+sorted_dict = {}
+sorted_keys = sorted(counts, key=counts.get, reverse=True)
+
+for w in sorted_keys:
+    sorted_dict[w] = counts[w]
+
+print("words : ", len(counts))
+
+for word, count in sorted_dict.items():
+    print(word, " : ", count)
+    
+file1.txt:
+aardvark | 5
+zigzag | 3
+aachen | 2
+aachez | 1
+Обнуляем словарь = освобождается ОП. 
+Снова считываем слова... И так пока не вычитаем весь текст.
+
+Далее нужно получить самые упоминаемые слова. 
+Можно пройтись по всем файлам. Брать из каждого, к примеру, 1 000 000 самых верхних слов. Такая выборка из многих файлов уже может влезть в оперативку(картинка как докидываем в ОП).
+Проблема: теряеются нижние слова. (картинка - когда хотим, к примеру, не топ 10, а топ 1 000 001. Или же, если теже топ 10 и брали верхние лишь 10 слов из большого количества файлов - то, допустим в file1.txt были топовые 10 слов, которые в других файлах вообще не встретились и, в итоге, не вошли в топ 10 из выборки всех файлов. Но вот в нём 11ое слово "арбуз" с 13, к примеру, упоминаниями в топ 10 остальных фигурировало и вышло в итоговом результате. Но из этого файла мы его не взяли. И потеряли в итоге 13 очков этому слову.
+
+Идея №3.
+Сортировать файлы.
+Сортируем файлы:
+file1.txt:
+aachen | 2
+aachez | 1
+aardvark | 5
+zigzag | 3
+К примеру, у нас 20 файлов. В каждом выполнили сортировку слов в алфавитном порядке. Тогда в каждом файле на техже самых уровнях окажутся примерно теже слова:
+file19.txt:
+aachen | 1
+aachez | 2
+aardv | 6
+aardvark | 3
+// спойлер Здесь, наверное, какая-то волшебная статистика самих текстов и частот появления определенных слов
+
+Тогда мы можем вычитать сразу из всех файлов, к примеру, 3 первых слова.
+file1.txt:
+aachen | 2
+aachez | 1
+aardvark | 5
+
+fileN.txt
+...
+file19.txt:
+aachen | 1
+aachez | 2
+aardv | 6
+Сложить повторяющиеся слова и получить итоговый файл:
+file_of_looking_first_3_words_from_all_20_given_files.txt:
+aachen | 3
+aachez | 3
+aardvark | 5
+aardv | 6
+Таким образом, после этого уже очень сильно уверены, что вычитали все слова "aachen", "aachez".
+
+Далее читаем со всех файлов file1.txt ... file20.txt снова 3 очередные строки - с 4ой по 7ую.
+Суммируем одинаковые слова. Получаем file_of_looking_second_3_words_from_all_20_given_files.txt.
+Благодаря этому снова уменьшили число повторяющихся слов.
+...
+В итоге, получили уже меньшее кол-во файлов.
+Снова проходимся по ним вычитывая по 3 строки и складывая значения повторяющихся слов и записывая результат в новый файл.
+Так за сколько-то итераций мы схлопнем все повторяющиеся слова из всех файлов.
+
+
