@@ -1,7 +1,16 @@
 Что решаем? Задачу "Top K".
 Найти, к примеру, 10 самых упоминаемых слов в википедии.
 
-Идея №1.
+# -*- coding: utf-8 -*-
+
+def isEnglish(s):
+    try:
+        s.encode(encoding='utf-8').decode('ascii')
+    except UnicodeDecodeError:
+        return False
+    else:
+        return True
+
 text = open("moscow.txt")
 counts = dict()
 
@@ -14,10 +23,11 @@ def count_words(text):
 
         for word in words:
             if word.isalpha():
-                if word in counts:
-                    counts[word] = counts[word] + 1
-                else:
-                    counts[word] = 1
+                if isEnglish(word):
+                    if word in counts:
+                        counts[word] = counts[word] + 1
+                    else:
+                        counts[word] = 1
 
 count_words(text)
 
@@ -51,43 +61,72 @@ dict[''арбуз"] += 1.
 Идея №2.
 Считываем слова в словарь с инкрементом кол-ва упоминаний пока есть память. Выгружаем словарь в новый файл когда память кончилась:
 
+# -*- coding: utf-8 -*-
+
 import os
 
 filename = "moscow.txt"
+max_words_in_ram = 500
+current_words_quantity = 0
+
+
+def written_in_english(word):
+    try:
+        word.encode(encoding='utf-8').decode('ascii')
+    except UnicodeDecodeError:
+        return False
+    else:
+        if word.isalpha():
+            return True
+        else:
+            return False
+
+
+def get_words(line):
+    line = line.strip()
+    line = line.lower()
+    words = line.split()
+
+    return words
+
+
+def save_to_file(counts, exceed_ram_times):
+    output_file = os.path.splitext(filename)[0] + "_out" + str(exceed_ram_times) + ".txt"
+    with open(output_file, 'w') as f:
+        for word, count in sorted(counts.items()): # , reverse=True
+            f.write('%s : %s\n' % (word, count))
+
 
 def count_words(filename):
 
     text = open(filename)
     counts = dict()
-
-    max_words_in_ram = 500
     exceed_ram_times = 0
 
-    for line in text:
-        line = line.strip()
-        line = line.lower()
+    global max_words_in_ram
+    global current_words_quantity
 
-        words = line.split()
+    for line in text:
+        words = get_words(line)
 
         for word in words:
-            if word.isalpha():
-
+            if written_in_english(word):
                 if word in counts:
                     counts[word] = counts[word] + 1
                 else:
                     counts[word] = 1
-                    if max_words_in_ram >= 0:
-                        max_words_in_ram = max_words_in_ram - 1
+                    if current_words_quantity < max_words_in_ram:
+                        current_words_quantity = current_words_quantity + 1
                     else:
                         exceed_ram_times = exceed_ram_times + 1
-                        max_words_in_ram = 500
+                        current_words_quantity = 0
 
-                        output_file = os.path.splitext(filename)[0] + "_out" + str(exceed_ram_times) + ".txt"
-                        with open(output_file, 'w') as f:
-                            for word, count in sorted(counts.items()): # , reverse=True
-                                f.write('%s : %s\n' % (word, count))
-
+                        save_to_file(counts, exceed_ram_times)
                         counts.clear()
+
+    exceed_ram_times = exceed_ram_times + 1
+    save_to_file(counts, exceed_ram_times)
+    counts.clear()
 
 
 count_words(filename)
