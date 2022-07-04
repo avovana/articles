@@ -3,57 +3,9 @@
 
 # -*- coding: utf-8 -*-
 
-def written_in_english(word):
-    try:
-        word.encode(encoding='utf-8').decode('ascii')
-    except UnicodeDecodeError:
-        return False
-    else:
-        if word.isalpha():
-            return True
-        else:
-            return False
-
-
-def get_words(line):
-    line = line.strip()
-    line = line.lower()
-    words = line.split()
-
-    return words
-
-
-text = open("moscow.txt")
-counts = dict()
-
-
-def count_words(text):
-    global counts
-
-    for line in text:
-        words = get_words(line)
-
-        for word in words:
-            word.strip()
-            if written_in_english(word):
-                if word in counts:
-                    counts[word] = counts[word] + 1
-                else:
-                    counts[word] = 1
-
-count_words(text)
-
-sorted_dict = {}
-sorted_keys = sorted(counts, key=counts.get, reverse=True)
-
-for w in sorted_keys:
-    sorted_dict[w] = counts[w]
-
-print("words : ", len(counts))
-
-for word, count in sorted_dict.items():
-    print(word, ":", count)
-
+====================================
+1_big_hash_table.py
+====================================
 
 Считать все слова в словарь с количеством упоминаний:
 dict[''арбуз"] += 1.
@@ -73,125 +25,14 @@ dict[''арбуз"] += 1.
 Идея №2.
 Считываем слова в словарь с инкрементом кол-ва упоминаний пока есть память. Выгружаем словарь в новый файл когда память кончилась:
 
-# -*- coding: utf-8 -*-
+====================================
+2_devide_into_files_incremently.py
+====================================
+Проверка с объединением:
+====================================
+3_merge_files_to_check.py
+====================================
 
-import os
-
-filename = "moscow.txt"
-max_words_in_ram = 500
-current_words_quantity = 0
-counts = dict()
-
-def written_in_english(word):
-    try:
-        word.encode(encoding='utf-8').decode('ascii')
-    except UnicodeDecodeError:
-        return False
-    else:
-        if word.isalpha():
-            return True
-        else:
-            return False
-
-
-def get_words(line):
-    line = line.strip()
-    line = line.lower()
-    words = line.split()
-
-    return words
-
-
-def save_to_file(counts, exceed_ram_times):
-    output_file = os.path.splitext(filename)[0] + "_out" + str(exceed_ram_times) + ".txt"
-    with open(output_file, 'w') as f:
-        for word, count in sorted(counts.items()): # , reverse=True
-            f.write('%s : %s\n' % (word, count))
-
-
-def count_words(filename):
-
-    text = open(filename)
-    global counts
-    exceed_ram_times = 0
-
-    global max_words_in_ram
-    global current_words_quantity
-
-    for line in text:
-        words = get_words(line)
-
-        for word in words:
-            if written_in_english(word):
-                if word in counts:
-                    counts[word] = counts[word] + 1
-                else:
-                    counts[word] = 1
-                    if current_words_quantity < max_words_in_ram:
-                        current_words_quantity = current_words_quantity + 1
-                    else:
-                        exceed_ram_times = exceed_ram_times + 1
-                        current_words_quantity = 0
-
-                        save_to_file(counts, exceed_ram_times)
-                        counts.clear()
-
-    exceed_ram_times = exceed_ram_times + 1
-    save_to_file(counts, exceed_ram_times)
-    counts.clear()
-
-
-count_words(filename)
-
-
-//================================
-
-import os
-
-filename = "moscow.txt"
-
-counts = dict()
-
-def count_words(filename):
-
-    text = open(filename)
-
-    for line in text:
-        line = line.strip()
-        line = line.lower()
-
-        words = line.split(":")
-        word = words[0].strip()
-        count = int(words[1])
-
-        if word in counts:
-            counts[word] = counts[word] + count
-        else:
-            counts[word] = count
-
-# count_words(filename)
-
-import glob
-
-# absolute path to search all text files inside a specific folder
-path = r'moscow_out*'
-files = glob.glob(path)
-print(files)
-
-for filename in files:
-    count_words(filename)
-
-sorted_dict = {}
-sorted_keys = sorted(counts, key=counts.get, reverse=True)
-
-for w in sorted_keys:
-    sorted_dict[w] = counts[w]
-
-print("words : ", len(counts))
-
-for word, count in sorted_dict.items():
-    word.strip()
-    print(word, ":", count)
     
 file1.txt:
 aardvark | 5
@@ -204,6 +45,8 @@ aachez | 1
 Далее нужно получить самые упоминаемые слова. 
 Можно пройтись по всем файлам. Брать из каждого, к примеру, 1 000 000 самых верхних слов. Такая выборка из многих файлов уже может влезть в оперативку(картинка как докидываем в ОП).
 Проблема: теряеются нижние слова. (картинка - когда хотим, к примеру, не топ 10, а топ 1 000 001. Или же, если теже топ 10 и брали верхние лишь 10 слов из большого количества файлов - то, допустим в file1.txt были топовые 10 слов, которые в других файлах вообще не встретились и, в итоге, не вошли в топ 10 из выборки всех файлов. Но вот в нём 11ое слово "арбуз" с 13, к примеру, упоминаниями в топ 10 остальных фигурировало и вышло в итоговом результате. Но из этого файла мы его не взяли. И потеряли в итоге 13 очков этому слову.
+
+
 
 Идея №3.
 Сортировать файлы.
