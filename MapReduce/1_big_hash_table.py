@@ -36,21 +36,21 @@ def count_words(text):
                     counts[word] = 1
 
 count_words(text)
-#
+
 # for word, count in counts.items():
 #     print(word, ":", count)
 
-for word, count in dict(sorted(counts.items())).items():
-    print(word, ":", count)
-
-
-# sorted_dict = {}
-# sorted_keys = sorted(counts, key=counts.get, reverse=True)
-#
-# for w in sorted_keys:
-#     sorted_dict[w] = counts[w]
-#
-# print("words : ", len(counts))
-#
-# for word, count in sorted_dict.items():
+# for word, count in dict(sorted(counts.items())).items():
 #     print(word, ":", count)
+
+
+sorted_dict = {}
+sorted_keys = sorted(counts, key=counts.get, reverse=True)
+
+for w in sorted_keys:
+    sorted_dict[w] = counts[w]
+
+print("words : ", len(counts))
+
+for word, count in sorted_dict.items():
+    print(word, ":", count)
