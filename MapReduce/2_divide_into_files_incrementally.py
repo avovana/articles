@@ -2,10 +2,11 @@
 
 import os
 
-filename = "moscow.txt"
+
 max_words_in_ram = 500
 current_words_quantity = 0
 counts = dict()
+
 
 def written_in_english(word):
     try:
@@ -38,13 +39,13 @@ def save_to_file(counts, exceed_ram_times):
 
 
 def count_words(filename):
-
-    text = open(filename)
     global counts
-    exceed_ram_times = 0
-
     global max_words_in_ram
     global current_words_quantity
+
+    exceed_ram_times = 0
+
+    text = open(filename)
 
     for line in text:
         words = get_words(line)
@@ -69,4 +70,6 @@ def count_words(filename):
     counts.clear()
 
 
-count_words(filename)
+if __name__ == "__main__":
+    filename = "everest.txt"
+    count_words(filename)

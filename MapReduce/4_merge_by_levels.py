@@ -1,11 +1,12 @@
 import glob
 import math
+from output import *
 
 counts = dict()
 
 
 def save_to_file(start_depth_level, end_depth_level, filename, file_number):
-    global counts
+    # global counts
     output_file = filename.split("_")[0] + "_depth" + "_" + str(start_depth_level) + "-" + str(end_depth_level) + ".txt" #  + "_" + str(file_number) + ".txt"
     with open(output_file, 'w') as f:
         for word, count in dict(sorted(counts.items(), key=lambda item: item[1], reverse=True)).items():
@@ -40,10 +41,9 @@ def count_words(filename):
 
 
 if __name__ == "__main__":
-    # absolute path to search all text files inside a specific folder
-    path = r'moscow_out*'
-    files = glob.glob(path)
-    print(files)
+    filename = "everest.txt"
+    files_mask = filename.split(".")[0] + "_out*"
+    files = glob.glob(files_mask)   # print(files)
 
     file_number = 0
     max_words_in_ram = 500

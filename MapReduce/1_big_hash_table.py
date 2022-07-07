@@ -1,3 +1,8 @@
+from output import *
+
+counts = dict()
+
+
 def written_in_english(word):
     try:
         word.encode(encoding='utf-8').decode('ascii')
@@ -18,12 +23,10 @@ def get_words(line):
     return words
 
 
-text = open("moscow.txt")
-counts = dict()
-
-
 def count_words(text):
     global counts
+
+    text = open("everest.txt")
 
     for line in text:
         words = get_words(line)
@@ -35,22 +38,8 @@ def count_words(text):
                 else:
                     counts[word] = 1
 
-count_words(text)
 
-# for word, count in counts.items():
-#     print(word, ":", count)
-
-# for word, count in dict(sorted(counts.items())).items():
-#     print(word, ":", count)
-
-
-sorted_dict = {}
-sorted_keys = sorted(counts, key=counts.get, reverse=True)
-
-for w in sorted_keys:
-    sorted_dict[w] = counts[w]
-
-print("words : ", len(counts))
-
-for word, count in sorted_dict.items():
-    print(word, ":", count)
+if __name__ == "__main__":
+    filename = "everest.txt"
+    count_words(filename)
+    output_alphabetically(counts)
