@@ -1,11 +1,10 @@
 import glob
 import math
-from output import *
 
 counts = dict()
 
 
-def save_to_file(start_depth_level, end_depth_level, filename, file_number):
+def save_to_file(start_depth_level, end_depth_level, filename):
     # global counts
     output_file = filename.split("_")[0] + "_depth" + "_" + str(start_depth_level) + "-" + str(end_depth_level) + ".txt" #  + "_" + str(file_number) + ".txt"
     with open(output_file, 'w') as f:
@@ -37,19 +36,13 @@ def count_words(filename):
             counts[word] = count
 
 
-# count_words(filename)
-
-
 if __name__ == "__main__":
     filename = "everest.txt"
     files_mask = filename.split(".")[0] + "_out*"
     files = glob.glob(files_mask)   # print(files)
 
-    file_number = 0
     max_words_in_ram = 500
     depth_step = math.floor(max_words_in_ram / len(files))
-
-    filename = "moscow.txt"
 
     start_depth_level = 0
     end_depth_level = depth_step
@@ -58,21 +51,7 @@ if __name__ == "__main__":
         for filename in files:
             count_words(filename)
 
-        save_to_file(start_depth_level, end_depth_level, filename, file_number)
+        save_to_file(start_depth_level, end_depth_level, filename)
         start_depth_level = start_depth_level + depth_step
         end_depth_level = end_depth_level + depth_step
         counts.clear()
-        file_number = file_number + 1
-
-    #
-    #
-    # sorted_dict = {}
-    # sorted_keys = sorted(counts, key=counts.get, reverse=True)
-    #
-    # for w in sorted_keys:
-    #     sorted_dict[w] = counts[w]
-    #
-    # print("words : ", len(counts))
-    #
-    # for word, count in sorted_dict.items():
-    #     print(word, ":", count)

@@ -31,11 +31,8 @@ def get_words(line):
 def save_to_file(counts, exceed_ram_times):
     output_file = os.path.splitext(filename)[0] + "_out" + str(exceed_ram_times) + ".txt"
     with open(output_file, 'w') as f:
-        for word, count in dict(sorted(counts.items(), key=lambda item: item[1], reverse=True)).items():
+        for word, count in sorted(counts.items()):  # , reverse=True
             f.write('%s : %s\n' % (word, count))
-
-        # for word, count in sorted(counts.items()): # , reverse=True
-        #     f.write('%s : %s\n' % (word, count))
 
 
 def count_words(filename):

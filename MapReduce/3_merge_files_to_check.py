@@ -29,4 +29,4 @@ if __name__ == "__main__":
     for filename in files:
         count_words(filename)
 
-    output_alphabetically()
+    output_alphabetically(counts)
