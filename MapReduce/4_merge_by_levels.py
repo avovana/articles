@@ -43,15 +43,18 @@ if __name__ == "__main__":
 
     max_words_in_ram = 500
     depth_step = math.floor(max_words_in_ram / len(files))
+    print(depth_step)
 
-    start_depth_level = 0
-    end_depth_level = depth_step
 
-    while end_depth_level < max_words_in_ram:
-        for filename in files:
-            count_words(filename)
+    
+    # start_depth_level = 0
+    # end_depth_level = depth_step
 
-        save_to_file(start_depth_level, end_depth_level, filename)
-        start_depth_level = start_depth_level + depth_step
-        end_depth_level = end_depth_level + depth_step
-        counts.clear()
+    # while end_depth_level < max_words_in_ram:
+    #     for filename in files:
+    #         count_words(filename)
+
+    #     save_to_file(start_depth_level, end_depth_level, filename)
+    #     start_depth_level = start_depth_level + depth_step
+    #     end_depth_level = end_depth_level + depth_step
+    #     counts.clear()
