@@ -1,6 +1,7 @@
 import os
 import subprocess
 import glob
+import argparse
 import sys
 
 
@@ -16,9 +17,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-def get_files_paires():
-	files = glob.glob('everest_depth*.txt')
-
+def get_files_paires(files):
 	pairs = list()
 	cache = list()
 
@@ -42,7 +41,6 @@ def get_files_paires():
 
 def print_matched_words(pairs):
 	for file1_name, file2_name in pairs:
-		file1_words = list()
 
 		header_printed = False
 		with open(file1_name) as file1:
@@ -56,15 +54,22 @@ def print_matched_words(pairs):
 							if not header_printed:
 								header_printed = True
 								header = '{:<12}  {:^22}  {:^22}'.format("match word", file1_name, file2_name)
-								print(bcolors.HEADER + header + bcolors.ENDC)
+								print(header) # print(bcolors.HEADER + header + bcolors.ENDC)
 
 							line = '{:<12}  {:^22}  {:^22}'.format(word1, num1, num2)
-							print(bcolors.OKGREEN + line + bcolors.ENDC)
+							print(line) # print(bcolors.OKGREEN + line + bcolors.ENDC)
 
 	return 1
 
 
 if __name__ == '__main__':
-	files_pairs = get_files_paires()
+	parser = argparse.ArgumentParser(description='script looks for the same words in files')
+	parser.add_argument('input_files_mask', type=str, help='A files mask to make paired files')
+	args = parser.parse_args()
+
+	files_mask = args.input_files_mask
+	files = glob.glob(files_mask)
+
+	files_pairs = get_files_paires(files)
 	res = print_matched_words(files_pairs)
 	sys.exit(1)

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import argparse
+import sys
 
 
 max_words_in_ram = 500
@@ -68,5 +70,11 @@ def count_words(filename):
 
 
 if __name__ == "__main__":
-    filename = "everest.txt"
+    parser = argparse.ArgumentParser(description='script divides whole input text to small files according to memory shortage')
+    parser.add_argument('input_file', type=str, help='input files to divide')
+    args = parser.parse_args()
+
+    filename = args.input_file
     count_words(filename)
+
+    sys.exit(1)
